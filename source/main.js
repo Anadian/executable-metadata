@@ -141,8 +141,10 @@ function isELF( input_buffer, options = {} ){
 	var return_error;
 	const FUNCTION_NAME = 'isELF';
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
-	//Variables
+	//Constants
 	const magic_number_buffer = Buffer.from( [ 0x7F, 0x45, 0x4C, 0x46 ] );
+	//Variables
+	var compare_int = -1;
 	//Parametre checks
 	if( Buffer.isBuffer(input_buffer) === false ){
 		return_error = new TypeError('Param "input_buffer" is not Buffer.');
@@ -156,7 +158,7 @@ function isELF( input_buffer, options = {} ){
 	}
 
 	//Function
-	var compare_int = magic_number_buffer.compare( input_buffer, 0, 4 );
+	compare_int = magic_number_buffer.compare( input_buffer, 0, 4 );
 	if( compare_int === 0 ){
 		_return = true;
 	} else{
@@ -186,6 +188,7 @@ Throws:
 | code | type | condition |
 | --- | --- | --- |
 | 'ERR_INVALID_ARG_TYPE' | {TypeError} | Thrown if a given argument isn't of the correct type. |
+| 'ERR_INVALID_CHAR' | {Error} | Thrown if the given ELF buffer is malformed and contains erroneous data. |
 
 History:
 | version | change |
@@ -390,6 +393,7 @@ function isPE( input_buffer, options = {} ){
 	const magic_number_buffer = Buffer.from( [ 0x50, 0x45, 0x00, 0x00 ] ); //PE\0\0
 	//Variables
 	var pe_header_offset_16le = 0;
+	var compare_int = -1;
 	//Parametre checks
 	if( Buffer.isBuffer(input_buffer) === false ){
 		return_error = new TypeError('Param "input_buffer" is not Buffer.');
@@ -405,8 +409,8 @@ function isPE( input_buffer, options = {} ){
 	//Function
 	pe_header_offset_16le = input_buffer.readUInt16LE( 0x3C );
 
-	var compare_int = magic_number_buffer.compare( input_buffer, pe_header_offset_16le, (pe_header_offset_16le + 4) );
-	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'note', message: `compare_int: ${compare_int}`});
+	compare_int = magic_number_buffer.compare( input_buffer, pe_header_offset_16le, (pe_header_offset_16le + 4) );
+	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `compare_int: ${compare_int}`});
 	if( compare_int === 0 ){
 		_return = true;
 	} else{
@@ -750,6 +754,15 @@ function parsePE( input_buffer, options = {},){
 	var metadata_object = {
 		format: 'PE'
 	};
+	var offset = 0;
+	var bitflag_keys = [];
+	var bitflag_values = [];
+	var flag_uint = 0;
+	var temp_object = {};
+	var dll_c_keys = [];
+	var dll_c_values = [];
+	var flag_object = {};
+	var imagebase_bigint = 0n;
 	//Parametre checks
 	if( Buffer.isBuffer(input_buffer) === false ){
 		return_error = new TypeError('Param "input_buffer" is not Buffer.');
@@ -763,7 +776,7 @@ function parsePE( input_buffer, options = {},){
 	}
 	//Function
 	metadata_object.pe_header_offset_16le = input_buffer.readUInt16LE( 0x3C );
-	var offset = metadata_object.pe_header_offset_16le + 4;
+	offset = metadata_object.pe_header_offset_16le + 4;
 	metadata_object.machine_type = input_buffer.readUInt16LE( offset );
 	if( machine_types_object[metadata_object.machine_type] != undefined ){
 		metadata_object.machine_type_object = machine_types_object[metadata_object.machine_type];
@@ -781,10 +794,10 @@ function parsePE( input_buffer, options = {},){
 	offset += 2;
 	metadata_object.characteristics_bitflag = input_buffer.readUInt16LE( offset );
 	metadata_object.characteristics_bitflags = [];
-	var bitflag_keys = Object.keys( bitflags_object );
-	var bitflag_values = Object.values( bitflags_object );
+	bitflag_keys = Object.keys( bitflags_object );
+	bitflag_values = Object.values( bitflags_object );
 	for( var i = 0; i < bitflag_keys.length; i++ ){
-		var flag_uint = parseInt( bitflag_keys[i], 10 );
+		flag_uint = parseInt( bitflag_keys[i], 10 );
 		/*if( Math.floor( metadata_object.characteristics_bitflag / flag_uint ) ){
 			var flag = ( metadata_object.characteristics_bitflag % ( parseInt(bitflag_keys[i], 10) * 2 ) );
 			console.log( flag );
@@ -795,7 +808,7 @@ function parsePE( input_buffer, options = {},){
 			}
 		}*/
 		if( metadata_object.characteristics_bitflag & flag_uint ){
-			var temp_object = bitflag_values[i];
+			temp_object = bitflag_values[i];
 			temp_object.flag_code = flag_uint;
 			metadata_object.characteristics_bitflags.push( temp_object );
 		}
@@ -836,7 +849,8 @@ function parsePE( input_buffer, options = {},){
 				metadata_object.windows_specific.image_base = input_buffer.readUInt32LE( offset );
 				offset += 4;
 			} else if( metadata_object.object_type === 'PE32+' ){
-				metadata_object.windows_specific.image_base = input_buffer.readBigUInt64LE( offset );
+				imagebase_bigint = input_buffer.readBigUInt64LE( offset );
+				metadata_object.windows_specific.image_base = imagebase_bigint.toString()+'n';
 				offset += 8;
 			}
 			metadata_object.windows_specific.section_alignment = input_buffer.readUInt32LE( offset );
@@ -865,7 +879,7 @@ function parsePE( input_buffer, options = {},){
 			offset += 4;
 			metadata_object.windows_specific.subsystem = input_buffer.readUInt16LE( offset );
 			if( subsystems_object[metadata_object.windows_specific.subsystem] != undefined ){
-				var temp_object = subsystems_object[metadata_object.windows_specific.subsystem];
+				temp_object = subsystems_object[metadata_object.windows_specific.subsystem];
 				temp_object.subsystem_code = metadata_object.windows_specific.subsystem;
 				metadata_object.windows_specific.subsystem = temp_object;
 			}
@@ -873,11 +887,11 @@ function parsePE( input_buffer, options = {},){
 			metadata_object.windows_specific.dll_characteristics = input_buffer.readUInt16LE( offset );
 			if( metadata_object.windows_specific.dll_characteristics > 0 ){
 				metadata_object.windows_specific.dll_characteristic_flags = [];
-				var dll_c_keys = Object.keys(dll_characteristics_object);
-				var dll_c_values = Object.values(dll_characteristics_object);
+				dll_c_keys = Object.keys(dll_characteristics_object);
+				dll_c_values = Object.values(dll_characteristics_object);
 				for( var i = 0; i < dll_c_keys.length; i++ ){
 					if( metadata_object.windows_specific.dll_characteristics & dll_c_keys[i] ){
-						var flag_object = dll_c_values[i];
+						flag_object = dll_c_values[i];
 						flag_object.flag_code = dll_c_keys[i];
 						metadata_object.windows_specific.dll_characteristic_flags.push( flag_object );
 					}
@@ -925,6 +939,9 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	//Variables
 	var header_object = null;
 	var buffer_size = 0;
+	var file_stats = null;
+	var header_buffer = null;
+	var file_handle = null;
 	//Parametre checks
 	if( typeof(filepath) !== 'string' ){
 		return_error = new TypeError('Param "filepath" is not string.');
@@ -938,18 +955,43 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	}
 
 	//Function
-	var file_stats = await FileSystem.promises.stat( filepath );
+	try{
+		file_stats = await FileSystem.promises.stat( filepath );
+	} catch(error){
+		return_error = new Error(`await FileSystem.promises.stat threw an error: ${error}`);
+		throw return_error;
+	}
 	buffer_size = Math.min( file_stats.size, 131072 ); //16 KiB
-	var header_buffer = Buffer.alloc( buffer_size ); 
-	var file_handle = await FileSystem.promises.open( filepath );
-	await file_handle.read( header_buffer, 0, header_buffer.length, null );
+	try{
+		header_buffer = Buffer.alloc( buffer_size );
+	} catch(error){
+		return_error = new Error(`Buffer.alloc threw an error: ${error}`);
+		throw return_error;
+	}
+	try{
+		file_handle = await FileSystem.promises.open( filepath );
+	} catch(error){
+		return_error = new Error(`await FileSystem.promises.open threw an error: ${error}`);
+		throw return_error;
+	}
+	try{
+		await file_handle.read( header_buffer, 0, header_buffer.length, null );
+	} catch(error){
+		return_error = new Error(`await file_handle.read threw an error: ${error}`);
+		throw return_error;
+	}
 	if( isELF( header_buffer ) === true ){
 		header_object = parseELF( header_buffer );
 	} else if( isPE( header_buffer ) === true ){
 		header_object = parsePE( header_buffer );
 	}
 	//console.log( header_object );
-	await file_handle.close();
+	try{
+		await file_handle.close();
+	} catch(error){
+		return_error = new Error(`await file_handle.close threw an error: ${error}`);
+		throw return_error;
+	}
 	_return = header_object;
 
 	//Return
@@ -1017,7 +1059,7 @@ async function main_Async( options = {} ){
 	///Transform
 	if( return_error === null ){
 		//if( input_string !== '' && typeof(input_string) === 'string' ){
-		console.log( options.input );
+		//console.log( options.input );
 		if( options.input.length > 0 ){
 			for( var i = 0; i < options.input.length; i++ ){
 				try{
@@ -1092,6 +1134,8 @@ if(require.main === module){
 		//Input
 		//{ name: 'stdin', alias: 'i', type: Boolean, description: 'Read input from STDIN.' },
 		{ name: 'input', alias: 'I', type: String, defaultOption: true, multiple: true, description: 'The path to the file(s) to read input from.' },
+		//Format
+		{ name: 'json', alias: 'j', type: Boolean, description: 'Output the parsed metadata as a JSON object instead of the default text output.' },
 		//Output
 		{ name: 'stdout', alias: 'o', type: Boolean, description: 'Write output to STDOUT.' },
 		{ name: 'output', alias: 'O', type: String, description: 'The name of the file to write output to.' },
