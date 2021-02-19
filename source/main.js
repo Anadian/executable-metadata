@@ -41,7 +41,8 @@ Documentation License: [![Creative Commons License](https://i.creativecommons.or
 	const FileSystem = require('fs');
 	const Assert = require('assert').strict;
 	//##External
-	const GetStream = require('get-stream');
+	//const GetStream = require('get-stream');
+	const ConciseBuffer = require('concise-buffer');
 //#Constants
 const FILENAME = 'executable-metadata.js';
 const MODULE_NAME = 'ExecutableMetadata';
@@ -441,7 +442,457 @@ function isPE( input_buffer, options = {} ){
 	return _return;
 }
 /**
-### getMetadataObjectFromExecutableFilePath
+### parsePE
+> Returns a metadata object with information from the given PE-format buffer.
+
+Parametres:
+| name | type | description |
+| --- | --- | --- |
+| input_buffer | {Buffer} | The buffer to parse.  |
+| options | {?Object} | [Reserved] Additional run-time options. \[default: {}\] |
+
+Returns:
+| type | description |
+| --- | --- |
+| {Object} | An object whose properties will depend of the PE header data parsed in the buffer. |
+
+Throws:
+| code | type | condition |
+| --- | --- | --- |
+| 'ERR_INVALID_ARG_TYPE' | {TypeError} | Thrown if a given argument isn't of the correct type. |
+
+History:
+| version | change |
+| --- | --- |
+| 0.0.1 | WIP |
+*/
+function parsePE( input_buffer, options = {},){
+	var arguments_array = Array.from(arguments);
+	var _return;
+	var return_error;
+	const FUNCTION_NAME = 'parsePE';
+	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${ConciseBuffer.getStringFromBuffer(arguments_array[0])}`});
+	//Constants
+	var machine_types_object = {
+		0x00: {
+				constant: "IMAGE_FILE_MACHINE_UNKNOWN",
+				description: "The content of this field is assumed to be applicable to any machine type"
+		},
+		0x01d3: {
+				constant: "IMAGE_FILE_MACHINE_AM33",
+				description: "Matsushita AM33"
+		},
+		0x8664: {
+				constant: "IMAGE_FILE_MACHINE_AMD64",
+				description: "x64"
+		},
+		0x01c0: {
+				constant: "IMAGE_FILE_MACHINE_ARM",
+				description: "ARM little endian"
+		},
+		0xaa64: {
+				constant: "IMAGE_FILE_MACHINE_ARM64",
+				description: "ARM64 little endian"
+		},
+		0x01c4: {
+				constant: "IMAGE_FILE_MACHINE_ARMNT",
+				description: "ARM Thumb-2 little endian"
+		},
+		0x0ebc: {
+				constant: "IMAGE_FILE_MACHINE_EBC",
+				description: "EFI byte code"
+		},
+		0x014c: {
+				constant: "IMAGE_FILE_MACHINE_I386",
+				description: "Intel 386 or later processors and compatible processors"
+		},
+		0x0200: {
+				constant: "IMAGE_FILE_MACHINE_IA64",
+				description: "Intel Itanium processor family"
+		},
+		0x9041: {
+				constant: "IMAGE_FILE_MACHINE_M32R",
+				description: "Mitsubishi M32R little endian"
+		},
+		0x0266: {
+				constant: "IMAGE_FILE_MACHINE_MIPS16",
+				description: "MIPS16"
+		},
+		0x0366: {
+				constant: "IMAGE_FILE_MACHINE_MIPSFPU",
+				description: "MIPS with FPU"
+		},
+		0x0466: {
+				constant: "IMAGE_FILE_MACHINE_MIPSFPU16",
+				description: "MIPS16 with FPU"
+		},
+		0x01f0: {
+				constant: "IMAGE_FILE_MACHINE_POWERPC",
+				description: "Power PC little endian"
+		},
+		0x01f1: {
+				constant: "IMAGE_FILE_MACHINE_POWERPCFP",
+				description: "Power PC with floating point support"
+		},
+		0x0166: {
+				constant: "IMAGE_FILE_MACHINE_R4000",
+				description: "MIPS little endian"
+		},
+		0x5032: {
+				constant: "IMAGE_FILE_MACHINE_RISCV32",
+				description: "RISC-V 32-bit address space"
+		},
+		0x5064: {
+				constant: "IMAGE_FILE_MACHINE_RISCV64",
+				description: "RISC-V 64-bit address space"
+		},
+		0x5128: {
+				constant: "IMAGE_FILE_MACHINE_RISCV128",
+				description: "RISC-V 128-bit address space"
+		},
+		0x01a2: {
+				constant: "IMAGE_FILE_MACHINE_SH3",
+				description: "Hitachi SH3"
+		},
+		0x01a3: {
+				constant: "IMAGE_FILE_MACHINE_SH3DSP",
+				description: "Hitachi SH3 DSP"
+		},
+		0x01a6: {
+				constant: "IMAGE_FILE_MACHINE_SH4",
+				description: "Hitachi SH4"
+		},
+		0x01a8: {
+				constant: "IMAGE_FILE_MACHINE_SH5",
+				description: "Hitachi SH5"
+		},
+		0x01c2: {
+				constant: "IMAGE_FILE_MACHINE_THUMB",
+				description: "Thumb"
+		},
+		0x0169: {
+				constant: "IMAGE_FILE_MACHINE_WCEMIPSV2",
+				description: "MIPS little-endian WCE v2"
+		}
+	};
+	const bitflags_object = {
+		0x0001: {
+				constant: "IMAGE_FILE_RELOCS_STRIPPED",
+				description: "Image only, Windows CE, and Microsoft Windows NT and later. This indicates that the file does not contain base relocations and must therefore be loaded at its preferred base address. If the base address is not available, the loader reports an error. The default behavior of the linker is to strip base relocations from executable (EXE) files."
+		},
+		0x0002: {
+				constant: "IMAGE_FILE_EXECUTABLE_IMAGE",
+				description: "Image only. This indicates that the image file is valid and can be run. If this flag is not set, it indicates a linker error."
+		},
+		0x0004: {
+				constant: "IMAGE_FILE_LINE_NUMS_STRIPPED",
+				description: "COFF line numbers have been removed. This flag is deprecated and should be zero."
+		},
+		0x0008: {
+				constant: "IMAGE_FILE_LOCAL_SYMS_STRIPPED",
+				description: "COFF symbol table entries for local symbols have been removed. This flag is deprecated and should be zero."
+		},
+		0x0010: {
+				constant: "IMAGE_FILE_AGGRESSIVE_WS_TRIM",
+				description: "Obsolete. Aggressively trim working set. This flag is deprecated for Windows 2000 and later and must be zero."
+		},
+		0x0020: {
+				constant: "IMAGE_FILE_LARGE_ADDRESS_AWARE",
+				description: "Application can handle > 2-GB addresses."
+		},
+		0x0040: {
+				constant: "IMAGE_FILE_RESERVED",
+				description: "This flag is reserved for future use."
+		},
+		0x0080: {
+				constant: "IMAGE_FILE_BYTES_REVERSED_LO",
+				description: "Little endian: the least significant bit (LSB) precedes the most significant bit (MSB) in memory. This flag is deprecated and should be zero."
+		},
+		0x0100: {
+				constant: "IMAGE_FILE_32BIT_MACHINE",
+				description: "Machine is based on a 32-bit-word architecture."
+		},
+		0x0200: {
+				constant: "IMAGE_FILE_DEBUG_STRIPPED",
+				description: "Debugging information is removed from the image file."
+		},
+		0x0400: {
+				constant: "IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP",
+				description: "If the image is on removable media, fully load it and copy it to the swap file."
+		},
+		0x0800: {
+				constant: "IMAGE_FILE_NET_RUN_FROM_SWAP",
+				description: "If the image is on network media, fully load it and copy it to the swap file."
+		},
+		0x1000: {
+				constant: "IMAGE_FILE_SYSTEM",
+				description: "The image file is a system file, not a user program."
+		},
+		0x2000: {
+				constant: "IMAGE_FILE_DLL",
+				description: "The image file is a dynamic-link library (DLL). Such files are considered executable files for almost all purposes, although they cannot be directly run."
+		},
+		0x4000: {
+				constant: "IMAGE_FILE_UP_SYSTEM_ONLY",
+				description: "The file should be run only on a uniprocessor machine."
+		},
+		0x8000: {
+				constant: "IMAGE_FILE_BYTES_REVERSED_HI",
+				description: "Big endian: the MSB precedes the LSB in memory. This flag is deprecated and should be zero."
+		}
+	};
+	const subsystems_object = {
+		0: {
+			constant: "IMAGE_SUBSYSTEM_UNKNOWN",
+			description: "An unknown subsystem"
+		},
+		1: {
+			constant: "IMAGE_SUBSYSTEM_NATIVE",
+			description: "Device drivers and native Windows processes"
+		},
+		2: {
+			constant: "IMAGE_SUBSYSTEM_WINDOWS_GUI",
+			description: "The Windows graphical user interface (GUI) subsystem"
+		},
+		3: {
+			constant: "IMAGE_SUBSYSTEM_WINDOWS_CUI",
+			description: "The Windows character subsystem"
+		},
+		5: {
+			constant: "IMAGE_SUBSYSTEM_OS2_CUI",
+			description: "The OS/2 character subsystem"
+		},
+		7: {
+			constant: "IMAGE_SUBSYSTEM_POSIX_CUI",
+			description: "The Posix character subsystem"
+		},
+		8: {
+			constant: "IMAGE_SUBSYSTEM_NATIVE_WINDOWS",
+			description: "Native Win9x driver"
+		},
+		9: {
+			constant: "IMAGE_SUBSYSTEM_WINDOWS_CE_GUI",
+			description: "Windows CE"
+		},
+		10: {
+			constant: "IMAGE_SUBSYSTEM_EFI_APPLICATION",
+			description: "An Extensible Firmware Interface (EFI) application"
+		},
+		11: {
+			constant: "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
+			description: "An EFI driver with boot services"
+		},
+		12: {
+			constant: "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER",
+			description: "An EFI driver with run-time services"
+		},
+		13: {
+			constant: "IMAGE_SUBSYSTEM_EFI_ROM",
+			description: "An EFI ROM image"
+		},
+		14: {
+			constant: "IMAGE_SUBSYSTEM_XBOX",
+			description: "XBOX"
+		},
+		16: {
+			constant: "IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION",
+			description: "Windows boot application"
+		}
+	};
+	const dll_characteristics_object = {
+		0x0020: {
+			constant: "IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA",
+			description: "Image can handle a high entropy 64-bit virtual address space."
+		},
+		0x0040: {
+			constant: "IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE",
+			description: "DLL can be relocated at load time."
+		},
+		0x0080: {
+			constant: "IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY",
+			description: "Code Integrity checks are enforced."
+		},
+		0x0100: {
+			constant: "IMAGE_DLLCHARACTERISTICS_NX_COMPAT",
+			description: "Image is NX compatible."
+		},
+		0x0200: {
+			constant: "IMAGE_DLLCHARACTERISTICS_NO_ISOLATION",
+			description: "Isolation aware, but do not isolate the image."
+		},
+		0x0400: {
+			constant: "IMAGE_DLLCHARACTERISTICS_NO_SEH",
+			description: "Does not use structured exception (SE) handling. No SE handler may be called in this image."
+		},
+		0x0800: {
+			constant: "IMAGE_DLLCHARACTERISTICS_NO_BIND",
+			description: "Do not bind the image."
+		},
+		0x1000: {
+			constant: "IMAGE_DLLCHARACTERISTICS_APPCONTAINER",
+			description: "Image must execute in an AppContainer."
+		},
+		0x2000: {
+			constant: "IMAGE_DLLCHARACTERISTICS_WDM_DRIVER",
+			description: "A WDM driver."
+		},
+		0x4000: {
+			constant: "IMAGE_DLLCHARACTERISTICS_GUARD_CF",
+			description: "Image supports Control Flow Guard."
+		},
+		0x8000: {
+			constant: "IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE",
+			description: "Terminal Server aware. "
+		}
+	};
+	//Variables
+	var pe_header_offset_16le = 0;
+	var metadata_object = {
+		format: 'PE'
+	};
+	//Parametre checks
+	if( Buffer.isBuffer(input_buffer) === false ){
+		return_error = new TypeError('Param "input_buffer" is not Buffer.');
+		return_error.code = 'ERR_INVALID_ARG_TYPE';
+		throw return_error;
+	}
+	if( typeof(options) !== 'object' ){
+		return_error = new TypeError('Param "options" is not ?Object.');
+		return_error.code = 'ERR_INVALID_ARG_TYPE';
+		throw return_error;
+	}
+	//Function
+	metadata_object.pe_header_offset_16le = input_buffer.readUInt16LE( 0x3C );
+	var offset = metadata_object.pe_header_offset_16le + 4;
+	metadata_object.machine_type = input_buffer.readUInt16LE( offset );
+	if( machine_types_object[metadata_object.machine_type] != undefined ){
+		metadata_object.machine_type_object = machine_types_object[metadata_object.machine_type];
+	}
+	offset += 2;
+	metadata_object.number_of_sections = input_buffer.readUInt16LE( offset );
+	offset += 2;
+	metadata_object.timestamp = input_buffer.readInt32LE( offset );
+	offset += 4;
+	metadata_object.coff_symbol_table_offset = input_buffer.readUInt32LE( offset );
+	offset += 4;
+	metadata_object.coff_number_of_symbol_table_entries = input_buffer.readUInt32LE( offset );
+	offset += 4;
+	metadata_object.size_of_optional_header = input_buffer.readUInt16LE( offset );
+	offset += 2;
+	metadata_object.characteristics_bitflag = input_buffer.readUInt16LE( offset );
+	metadata_object.characteristics_bitflags = [];
+	var bitflag_keys = Object.keys( bitflags_object );
+	var bitflag_values = Object.values( bitflags_object );
+	for( var i = 0; i < bitflag_keys.length; i++ ){
+		var flag_uint = parseInt( bitflag_keys[i], 10 );
+		/*if( Math.floor( metadata_object.characteristics_bitflag / flag_uint ) ){
+			var flag = ( metadata_object.characteristics_bitflag % ( parseInt(bitflag_keys[i], 10) * 2 ) );
+			console.log( flag );
+			if( flag != 0 ){
+				var temp_object = bitflag_values[i];
+				temp_object.code = bitflag_keys[i];
+				metadata_object.characteristics_bitflags.push( temp_object );
+			}
+		}*/
+		if( metadata_object.characteristics_bitflag & flag_uint ){
+			var temp_object = bitflag_values[i];
+			temp_object.flag_code = flag_uint;
+			metadata_object.characteristics_bitflags.push( temp_object );
+		}
+	}
+	if( metadata_object.size_of_optional_header > 0 ){
+		offset += 2;
+		metadata_object.object_type_code = input_buffer.readUInt16LE( offset );
+		if( metadata_object.object_type_code == 0x010B ){
+			metadata_object.object_type = 'PE32';
+		} else if( metadata_object.object_type_code == 0x0107 ){
+			metadata_object.object_type = 'ROM';
+		} else if( metadata_object.object_type_code == 0x020B ){
+			metadata_object.object_type = 'PE32+';
+		} else{
+			Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `Unrecognised object type code: ${metadata_object.object_type_code}`});
+		}
+		if( metadata_object.object_type === 'PE32' || metadata_object.object_type === 'PE32+' ){
+			offset += 2;
+			metadata_object.linker = {};
+			metadata_object.linker.major_version = input_buffer.readUInt8( offset );
+			offset++;
+			metadata_object.linker.minor_version = input_buffer.readUInt8( offset );
+			offset++;
+			metadata_object.size_of_code = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.size_of_initialized_data = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.size_of_uninitialized_data = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.address_of_entry_point = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.base_of_code = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific = {};
+			if( metadata_object.object_type === 'PE32' ){
+				metadata_object.base_of_data = input_buffer.readUInt32LE( offset );
+				offset += 4;
+				metadata_object.windows_specific.image_base = input_buffer.readUInt32LE( offset );
+				offset += 4;
+			} else if( metadata_object.object_type === 'PE32+' ){
+				metadata_object.windows_specific.image_base = input_buffer.readBigUInt64LE( offset );
+				offset += 8;
+			}
+			metadata_object.windows_specific.section_alignment = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.file_alignment = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.major_os_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.minor_os_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.major_image_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.minor_image_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.major_subsystem_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.minor_subsystem_version = input_buffer.readUInt16LE( offset );
+			offset += 2;
+			metadata_object.windows_specific.win32_version = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.size_of_image = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.size_of_headers = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.checksum = input_buffer.readUInt32LE( offset );
+			offset += 4;
+			metadata_object.windows_specific.subsystem = input_buffer.readUInt16LE( offset );
+			if( subsystems_object[metadata_object.windows_specific.subsystem] != undefined ){
+				var temp_object = subsystems_object[metadata_object.windows_specific.subsystem];
+				temp_object.subsystem_code = metadata_object.windows_specific.subsystem;
+				metadata_object.windows_specific.subsystem = temp_object;
+			}
+			offset += 2;
+			metadata_object.windows_specific.dll_characteristics = input_buffer.readUInt16LE( offset );
+			if( metadata_object.windows_specific.dll_characteristics > 0 ){
+				metadata_object.windows_specific.dll_characteristic_flags = [];
+				var dll_c_keys = Object.keys(dll_characteristics_object);
+				var dll_c_values = Object.values(dll_characteristics_object);
+				for( var i = 0; i < dll_c_keys.length; i++ ){
+					if( metadata_object.windows_specific.dll_characteristics & dll_c_keys[i] ){
+						var flag_object = dll_c_values[i];
+						flag_object.flag_code = dll_c_keys[i];
+						metadata_object.windows_specific.dll_characteristic_flags.push( flag_object );
+					}
+				}
+			}	
+		}
+	}
+	//console.log(metadata_object);
+	_return = metadata_object;
+	//Return
+	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `returned: ${_return}`});
+	return _return;
+}
+/**
+### getMetadataObjectFromExecutableFilePath_Async
 > Returns an object with the header metadata for the executable at the given file path.
 
 Parametres:
@@ -465,11 +916,11 @@ History:
 | --- | --- |
 | 0.0.1 | WIP |
 */
-async function getMetadataObjectFromExecutableFilePath( filepath, options = {} ){
+async function getMetadataObjectFromExecutableFilePath_Async( filepath, options = {} ){
 	var arguments_array = Array.from(arguments);
 	var _return;
 	var return_error;
-	const FUNCTION_NAME = 'getMetadataObjectFromExecutableFilePath';
+	const FUNCTION_NAME = 'getMetadataObjectFromExecutableFilePath_Async';
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
 	//Variables
 	var header_object = null;
@@ -494,11 +945,12 @@ async function getMetadataObjectFromExecutableFilePath( filepath, options = {} )
 	await file_handle.read( header_buffer, 0, header_buffer.length, null );
 	if( isELF( header_buffer ) === true ){
 		header_object = parseELF( header_buffer );
-		console.log( header_object );
-		_return = header_object;
 	} else if( isPE( header_buffer ) === true ){
 		header_object = parsePE( header_buffer );
 	}
+	//console.log( header_object );
+	await file_handle.close();
+	_return = header_object;
 
 	//Return
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `returned: ${_return}`});
@@ -525,6 +977,8 @@ async function main_Async( options = {} ){
 	const FUNCTION_NAME = 'main_Async';
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
 	//Variables
+	var for_loop_error = null;
+	var for_loop_errors = [];
 	var input_buffers_array = [];
 	var output_strings_array = '';
 	//Parametre checks
@@ -563,10 +1017,23 @@ async function main_Async( options = {} ){
 	///Transform
 	if( return_error === null ){
 		//if( input_string !== '' && typeof(input_string) === 'string' ){
-		if( true ){
-			function_return = getMetadataObjectFromExecutableFilePath( options.input[0], options );
+		console.log( options.input );
+		if( options.input.length > 0 ){
+			for( var i = 0; i < options.input.length; i++ ){
+				try{
+					function_return = await getMetadataObjectFromExecutableFilePath_Async( options.input[i], options );
+					console.log( function_return );
+				} catch(error){
+					for_loop_error = new Error(`For ${i} (${options.input[i]}): getMetadataObjectFromExecutableFilePath threw an error: ${error}`);
+					for_loop_errors.push( for_loop_error );
+				}
+			}
+			if( for_loop_errors.length > 0 ){
+				return_error = new Error(`Errors occurred in the for loop: ${for_loop_errors}`);
+				//throw return_error;
+			}
 		} else{
-			return_error = new Error('input_string is either null or not a string.');
+			return_error = new Error('No input files specified.');
 			Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'error', message: return_error.message});
 		}
 	}
