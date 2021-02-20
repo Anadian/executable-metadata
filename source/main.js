@@ -907,7 +907,7 @@ function parsePE( input_buffer, options = {},){
 }
 /**
 ### getMetadataObjectFromExecutableFilePath_Async
-> Returns an object with the header metadata for the executable at the given file path.
+> Returns a promise that resolves to an object with the header metadata for the executable at the given file path.
 
 Parametres:
 | name | type | description |
@@ -918,7 +918,7 @@ Parametres:
 Returns:
 | type | description |
 | --- | --- |
-| {Object} | An object containing the parsed metadata. What properties the object has will depend of the executable format being parsed. |
+| {Promise} | A promise which resolves to an object containing the parsed metadata. What properties the object has will depend of the executable format being parsed. |
 
 Throws:
 | code | type | condition |
@@ -936,6 +936,7 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	var return_error;
 	const FUNCTION_NAME = 'getMetadataObjectFromExecutableFilePath_Async';
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
+	console.log( arguments_array );
 	//Variables
 	var header_object = null;
 	var buffer_size = 0;
@@ -1022,7 +1023,8 @@ async function main_Async( options = {} ){
 	var for_loop_error = null;
 	var for_loop_errors = [];
 	var input_buffers_array = [];
-	var output_strings_array = '';
+	var metadata_objects = {};
+	var output_string = '';
 	//Parametre checks
 	//Function
 	///Input
@@ -1064,7 +1066,12 @@ async function main_Async( options = {} ){
 			for( var i = 0; i < options.input.length; i++ ){
 				try{
 					function_return = await getMetadataObjectFromExecutableFilePath_Async( options.input[i], options );
-					console.log( function_return );
+					if( options.input.length > 1 ){
+						metadata_objects[options.input[i]] = function_return;
+					} else{
+						metadata_objects = function_return;
+					}
+					//console.log( function_return );
 				} catch(error){
 					for_loop_error = new Error(`For ${i} (${options.input[i]}): getMetadataObjectFromExecutableFilePath threw an error: ${error}`);
 					for_loop_errors.push( for_loop_error );
@@ -1073,6 +1080,13 @@ async function main_Async( options = {} ){
 			if( for_loop_errors.length > 0 ){
 				return_error = new Error(`Errors occurred in the for loop: ${for_loop_errors}`);
 				//throw return_error;
+			} else{
+				try{
+					output_string = JSON.stringify( metadata_objects, null, '\t' );
+				} catch(error){
+					return_error = new Error(`JSON.stringify threw an error: ${error}`);
+					//throw return_error;
+				}
 			}
 		} else{
 			return_error = new Error('No input files specified.');
@@ -1080,7 +1094,7 @@ async function main_Async( options = {} ){
 		}
 	}
 	///Output
-	/*if( return_error === null ){
+	if( return_error === null ){
 		if( output_string !== '' && typeof(output_string) === 'string' ){
 			if( options.output != null && typeof(output_string) === 'string' ){
 				try{
@@ -1099,7 +1113,7 @@ async function main_Async( options = {} ){
 			return_error = new Error('"output_string" is either null or not a string.');
 			Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'error', message: return_error.message});
 		}
-	}*/
+	}
 
 	//Return
 	if( return_error !== null ){
@@ -1135,7 +1149,7 @@ if(require.main === module){
 		//{ name: 'stdin', alias: 'i', type: Boolean, description: 'Read input from STDIN.' },
 		{ name: 'input', alias: 'I', type: String, defaultOption: true, multiple: true, description: 'The path to the file(s) to read input from.' },
 		//Format
-		{ name: 'json', alias: 'j', type: Boolean, description: 'Output the parsed metadata as a JSON object instead of the default text output.' },
+		//{ name: 'json', alias: 'j', type: Boolean, description: 'Output the parsed metadata as a JSON object instead of the default text output.' },
 		//Output
 		{ name: 'stdout', alias: 'o', type: Boolean, description: 'Write output to STDOUT.' },
 		{ name: 'output', alias: 'O', type: String, description: 'The name of the file to write output to.' },
@@ -1218,5 +1232,10 @@ if(require.main === module){
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: 'End of execution block.'});
 } else{
 	exports.setLogger = setLogger;
+	exports.isELF = isELF;
+	exports.parseELF = parseELF;
+	exports.isPE = isPE;
+	exports.parsePE = parsePE;
+	exports.getMetadataObjectFromExecutableFilePath_Async = getMetadataObjectFromExecutableFilePath_Async;
 }
 
