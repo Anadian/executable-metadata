@@ -3,6 +3,10 @@
 [![Semantic Versioning 2.0.0](https://img.shields.io/badge/semver-2.0.0-brightgreen?style=flat-square)](https://semver.org/spec/v2.0.0.html)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square)](https://conventionalcommits.org)
 [![License](https://img.shields.io/github/license/Anadian/executable-metadata)](https://github.com/Anadian/executable-metadata/blob/master/LICENSE)
+[![CI](https://github.com/Anadian/executable-metadata/workflows/ci/badge.svg)](https://github.com/Anadian/executable-metadata/actions?query=workflow%3Aci)
+[![Coverage Status](https://coveralls.io/repos/github/Anadian/executable-metadata/badge.svg?branch=master)](https://coveralls.io/github/Anadian/executable-metadata?branch=master)
+[![npm](https://img.shields.io/npm/v/executable-metadata)](https://www.npmjs.com/package/executable-metadata)
+![David](https://david-dm.org/Anadian/executable-metadata.svg)
 
 > Simply parse and print metadata from an executable binary's header from the command-line.
 # Table of Contents
