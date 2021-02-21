@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/Anadian/executable-metadata/compare/v0.0.1...v0.0.2) (2021-02-21)
+
+
+### Tests
+
+* Changing the few buffers to strings. ([49c5f29](https://github.com/Anadian/executable-metadata/commit/49c5f2986956c18ea8eee99d1f7856d3e6431399))
+* Normalising all the strings. ([e96e7fa](https://github.com/Anadian/executable-metadata/commit/e96e7fa75240d4ea793fc08a0a6c9368f114d1b1))
+* Trying simple string.replace; again! ([d3f2f75](https://github.com/Anadian/executable-metadata/commit/d3f2f75417ac6efd06a809066ea0c8df924d55c4))
+* Trying simple string.replace. ([dfebee8](https://github.com/Anadian/executable-metadata/commit/dfebee8e6d9c3b0ac3eac126ab0171006203aae4))
+* Working on improving test support on Windows. ([ebd357e](https://github.com/Anadian/executable-metadata/commit/ebd357e9d5ca4964d4b9d3875d1d240d47d69b0a))
+
+
+### Documentation
+
+* Documentation updated; ready for first real npm release. ([07d952d](https://github.com/Anadian/executable-metadata/commit/07d952ddae4c3c96104e36f1b12b6b92e5905433))
+
 ### [0.0.1](https://github.com/Anadian/executable-metadata/compare/v0.0.0...v0.0.1) (2021-02-21)
 
 
