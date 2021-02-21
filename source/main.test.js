@@ -368,7 +368,7 @@ AVA.cb( 'CLI:Usage', function( t ){
 		t.log( `exit returned with code: ${code} and signal: ${signal}.` );
 		if( code === 0 ){
 			t.log( `actual stdout: ${stdout_string} expected stdout: ${expected_stdout_string}` );
-			t.is( stdout_string, expected_stdout_string );
+			t.is( stdout_string, expected_stdout_string.replace( /\r\n/g, '\n' );
 			t.pass();
 		} else{
 			t.fail();
