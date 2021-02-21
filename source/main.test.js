@@ -412,12 +412,12 @@ AVA.cb( 'CLI:output', function( t ){
 	child_process.stdio[2].on( 'data', function( chunk ){
 		//console.log(`stderr received chunk: ${chunk}`);
 	} );*/
-	var expected_output_buffer = FileSystem.readFileSync( 'test/pe-output.txt' );
+	var expected_output_string = FileSystem.readFileSync( 'test/pe-output.txt', 'utf8' ).replace( /\r\n/g, '\n' );
 	child_process.on( 'exit', function( code, signal ){
 		t.log( `exit returned with code: ${code} and signal: ${signal}.` );
 		if( code === 0 ){
-			var actual_output_buffer = FileSystem.readFileSync( 'temp/output.txt' );
-			t.deepEqual( actual_output_buffer, expected_output_buffer );
+			var actual_output_string = FileSystem.readFileSync( 'temp/output.txt', 'utf8' ).replace( /\r\n/g, '\n' );
+			t.deepEqual( actual_output_string, expected_output_string );
 			t.pass();
 		} else{
 			t.fail();
