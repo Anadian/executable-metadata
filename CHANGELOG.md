@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.1](https://github.com/Anadian/executable-metadata/compare/v0.0.0...v0.0.1) (2021-02-21)
+
+
+### Tests
+
+* Fixing test data to work on all platforms. ([190a543](https://github.com/Anadian/executable-metadata/commit/190a543096e6718cac0956db8a254f52b3cd3c4e))
+
 ## 0.0.0 (2021-02-21)
 
 
