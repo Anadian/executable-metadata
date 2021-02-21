@@ -368,7 +368,7 @@ AVA.cb( 'CLI:Usage', function( t ){
 		t.log( `exit returned with code: ${code} and signal: ${signal}.` );
 		if( code === 0 ){
 			t.log( `actual stdout: ${stdout_string} expected stdout: ${expected_stdout_string}` );
-			t.is( stdout_string, expected_stdout_string.replace( /\r\n/g, '\n' ) );
+			t.is( stdout_string.replace( /\r\n/g, '\n' ), expected_stdout_string.replace( /\r\n/g, '\n' ) );
 			t.pass();
 		} else{
 			t.fail();
@@ -392,7 +392,7 @@ AVA.cb( 'CLI:stdout', function( t ){
 	child_process.on( 'exit', function( code, signal ){
 		t.log( `exit returned with code: ${code} and signal: ${signal}.` );
 		if( code === 0 ){
-			t.is( stdout_string, expected_stdout_string );
+			t.is( stdout_string.replace( /\r\n/g, '\n' ), expected_stdout_string.replace( /\r\n/g, '\n' ) );
 			t.pass();
 		} else{
 			t.fail();
@@ -441,7 +441,7 @@ AVA.cb( 'CLI:multi-file', function( t ){
 	child_process.on( 'exit', function( code, signal ){
 		t.log( `exit returned with code: ${code} and signal: ${signal}.` );
 		if( code === 0 ){
-			t.is( stdout_string, expected_stdout_string );
+			t.is( stdout_string.replace( /\r\n/g, '\n' ), expected_stdout_string.replace( /\r\n/g, '\n' ) );
 			t.pass();
 		} else{
 			t.fail();
