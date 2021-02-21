@@ -150,7 +150,7 @@ AVA( 'parseELF:Success:true', function( t ){
 //parsePE
 AVA( 'parsePE:Error:InvalidParam:input_buffer', function( t ){
 	var func = ExecutableMetadata.parsePE;
-	t.throws( func.bind( null, 'a string' ), { instanceOf: TypeError, code: 'ERR_INVALID_ARG_TYPE' } );
+	t.throws( func.bind( null, false ), { instanceOf: TypeError, code: 'ERR_INVALID_ARG_TYPE' } );
 } );
 AVA( 'parsePE:Error:InvalidParam:options', function( t ){
 	var func = ExecutableMetadata.parsePE;

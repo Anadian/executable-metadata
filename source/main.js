@@ -284,7 +284,7 @@ function parseELF( input_buffer, options = {} ){
 
 	//Function
 	byte_value = input_buffer.readUInt8( 0x04 );
-	switch(byte_value){
+	switch(byte_value)/* istanbul ignore next */{
 		case 1:
 			metadata_object.architecture.bits = 32;
 			break;
@@ -298,7 +298,7 @@ function parseELF( input_buffer, options = {} ){
 			throw return_error;
 	}
 	byte_value = input_buffer.readUInt8( 0x05 );
-	switch(byte_value){
+	switch(byte_value)/* istanbul ignore next */{
 		case 1:
 			metadata_object.endianness = 'little';
 			break;
@@ -312,13 +312,13 @@ function parseELF( input_buffer, options = {} ){
 			throw return_error;
 	}
 	byte_value = input_buffer.readUInt8( 0x06 );
-	if( byte_value !== 1 ){
+	if( byte_value !== 1 )/* istanbul ignore next */{
 		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `ELF format version (byte at 0x06) should probably be 1; instead it's ${byte_value}`});
 	}
 	metadata_object.format_version = byte_value;
 	//ABI
 	byte_value = input_buffer.readUInt8( 0x07 );
-	if( recognised_abis_object[byte_value] == undefined ){
+	if( recognised_abis_object[byte_value] == undefined )/* istanbul ignore next */{
 		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `Unrecognised value for a ABI: ${byte_value}`});
 	} else{
 		metadata_object.abi.name = recognised_abis_object[byte_value];
@@ -329,24 +329,24 @@ function parseELF( input_buffer, options = {} ){
 	metadata_object.abi.version = byte_value;
 	//Zeroes?
 	//Object type
-	if( metadata_object.edianness === 'big' ){
+	if( metadata_object.edianness === 'big' )/* istanbul ignore next */{
 		byte_value = input_buffer.readUInt16BE( 0x10 );
 	} else{
 		byte_value = input_buffer.readUInt16LE( 0x10 );
 	}
-	if( elf_object_types[byte_value] == undefined ){
+	if( elf_object_types[byte_value] == undefined )/* istanbul ignore next */{
 		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `Unrecognised object type value (byte at 0x10): ${byte_value}`});
 	} else{
 		metadata_object.object_type.string = elf_object_types[byte_value];
 	}
 	metadata_object.object_type.value = byte_value;
 	//ISA
-	if( metadata_object.endianness === 'big' ){
+	if( metadata_object.endianness === 'big' )/* istanbul ignore next */{
 		byte_value = input_buffer.readUInt16BE( 0x12 );
 	} else{
 		byte_value = input_buffer.readUInt16LE( 0x12 );
 	}
-	if( recognised_isas_object[byte_value] == undefined ){
+	if( recognised_isas_object[byte_value] == undefined )/* istanbul ignore next */{
 		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `Unrecognished ISA value (byte at 0x12): ${byte_value}`});
 	} else{
 		metadata_object.isa.name = recognised_isas_object[byte_value];
@@ -778,7 +778,7 @@ function parsePE( input_buffer, options = {},){
 	metadata_object.pe_header_offset_16le = input_buffer.readUInt16LE( 0x3C );
 	offset = metadata_object.pe_header_offset_16le + 4;
 	metadata_object.machine_type = input_buffer.readUInt16LE( offset );
-	if( machine_types_object[metadata_object.machine_type] != undefined ){
+	if( machine_types_object[metadata_object.machine_type] != undefined )/* istanbul ignore next */{
 		metadata_object.machine_type_object = machine_types_object[metadata_object.machine_type];
 	}
 	offset += 2;
@@ -818,11 +818,11 @@ function parsePE( input_buffer, options = {},){
 		metadata_object.object_type_code = input_buffer.readUInt16LE( offset );
 		if( metadata_object.object_type_code == 0x010B ){
 			metadata_object.object_type = 'PE32';
-		} else if( metadata_object.object_type_code == 0x0107 ){
+		} else if( metadata_object.object_type_code == 0x0107 )/* istanbul ignore next */{
 			metadata_object.object_type = 'ROM';
-		} else if( metadata_object.object_type_code == 0x020B ){
+		} else if( metadata_object.object_type_code == 0x020B )/* istanbul ignore next */{
 			metadata_object.object_type = 'PE32+';
-		} else{
+		} else/* istanbul ignore next */{
 			Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'warn', message: `Unrecognised object type code: ${metadata_object.object_type_code}`});
 		}
 		if( metadata_object.object_type === 'PE32' || metadata_object.object_type === 'PE32+' ){
@@ -848,7 +848,7 @@ function parsePE( input_buffer, options = {},){
 				offset += 4;
 				metadata_object.windows_specific.image_base = input_buffer.readUInt32LE( offset );
 				offset += 4;
-			} else if( metadata_object.object_type === 'PE32+' ){
+			} else if( metadata_object.object_type === 'PE32+' )/* istanbul ignore next */{
 				imagebase_bigint = input_buffer.readBigUInt64LE( offset );
 				metadata_object.windows_specific.image_base = imagebase_bigint.toString()+'n';
 				offset += 8;
@@ -885,7 +885,7 @@ function parsePE( input_buffer, options = {},){
 			}
 			offset += 2;
 			metadata_object.windows_specific.dll_characteristics = input_buffer.readUInt16LE( offset );
-			if( metadata_object.windows_specific.dll_characteristics > 0 ){
+			if( metadata_object.windows_specific.dll_characteristics > 0 )/* istanbul ignore next */{
 				metadata_object.windows_specific.dll_characteristic_flags = [];
 				dll_c_keys = Object.keys(dll_characteristics_object);
 				dll_c_values = Object.values(dll_characteristics_object);
@@ -958,26 +958,26 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	//Function
 	try{
 		file_stats = await FileSystem.promises.stat( filepath );
-	} catch(error){
+	} catch(error)/* istanbul ignore next */{
 		return_error = new Error(`await FileSystem.promises.stat threw an error: ${error}`);
 		throw return_error;
 	}
 	buffer_size = Math.min( file_stats.size, 131072 ); //16 KiB
 	try{
 		header_buffer = Buffer.alloc( buffer_size );
-	} catch(error){
+	} catch(error)/* istanbul ignore next */{
 		return_error = new Error(`Buffer.alloc threw an error: ${error}`);
 		throw return_error;
 	}
 	try{
 		file_handle = await FileSystem.promises.open( filepath );
-	} catch(error){
+	} catch(error)/* istanbul ignore next */{
 		return_error = new Error(`await FileSystem.promises.open threw an error: ${error}`);
 		throw return_error;
 	}
 	try{
 		await file_handle.read( header_buffer, 0, header_buffer.length, null );
-	} catch(error){
+	} catch(error)/* istanbul ignore next */{
 		return_error = new Error(`await file_handle.read threw an error: ${error}`);
 		throw return_error;
 	}
@@ -989,7 +989,7 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	//console.log( header_object );
 	try{
 		await file_handle.close();
-	} catch(error){
+	} catch(error)/* istanbul ignore next */{
 		return_error = new Error(`await file_handle.close threw an error: ${error}`);
 		throw return_error;
 	}
