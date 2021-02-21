@@ -1,0 +1,75 @@
+{
+	"format": "PE",
+	"pe_header_offset_16le": 512,
+	"machine_type": 332,
+	"machine_type_object": {
+		"constant": "IMAGE_FILE_MACHINE_I386",
+		"description": "Intel 386 or later processors and compatible processors"
+	},
+	"number_of_sections": 9,
+	"timestamp": 1451179981,
+	"coff_symbol_table_offset": 0,
+	"coff_number_of_symbol_table_entries": 0,
+	"size_of_optional_header": 224,
+	"characteristics_bitflag": 782,
+	"characteristics_bitflags": [
+		{
+			"constant": "IMAGE_FILE_EXECUTABLE_IMAGE",
+			"description": "Image only. This indicates that the image file is valid and can be run. If this flag is not set, it indicates a linker error.",
+			"flag_code": 2
+		},
+		{
+			"constant": "IMAGE_FILE_LINE_NUMS_STRIPPED",
+			"description": "COFF line numbers have been removed. This flag is deprecated and should be zero.",
+			"flag_code": 4
+		},
+		{
+			"constant": "IMAGE_FILE_LOCAL_SYMS_STRIPPED",
+			"description": "COFF symbol table entries for local symbols have been removed. This flag is deprecated and should be zero.",
+			"flag_code": 8
+		},
+		{
+			"constant": "IMAGE_FILE_32BIT_MACHINE",
+			"description": "Machine is based on a 32-bit-word architecture.",
+			"flag_code": 256
+		},
+		{
+			"constant": "IMAGE_FILE_DEBUG_STRIPPED",
+			"description": "Debugging information is removed from the image file.",
+			"flag_code": 512
+		}
+	],
+	"object_type_code": 267,
+	"object_type": "PE32",
+	"linker": {
+		"major_version": 5,
+		"minor_version": 0
+	},
+	"size_of_code": 1593344,
+	"size_of_initialized_data": 200704,
+	"size_of_uninitialized_data": 0,
+	"address_of_entry_point": 5824,
+	"base_of_code": 4096,
+	"windows_specific": {
+		"image_base": 4194304,
+		"section_alignment": 4096,
+		"file_alignment": 512,
+		"major_os_version": 4,
+		"minor_os_version": 0,
+		"major_image_version": 0,
+		"minor_image_version": 0,
+		"major_subsystem_version": 5,
+		"minor_subsystem_version": 0,
+		"win32_version": 0,
+		"size_of_image": 2031616,
+		"size_of_headers": 1536,
+		"checksum": 0,
+		"subsystem": {
+			"constant": "IMAGE_SUBSYSTEM_WINDOWS_GUI",
+			"description": "The Windows graphical user interface (GUI) subsystem",
+			"subsystem_code": 2
+		},
+		"dll_characteristics": 0
+	},
+	"base_of_data": 1597440
+}

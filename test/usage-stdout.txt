@@ -1,0 +1,27 @@
+0.0.0
+
+executable-metadata
+
+  Simply parse and print metadata from an executable binary's header from the   
+  command-line.                                                                 
+
+Options
+
+  -h, --help             Writes this help text to STDOUT.                       
+  -v, --verbose          Verbose output to STDERR.                              
+  -V, --version          Writes version information to STDOUT.                  
+  -x, --no-quick-exit    Don't immediately exit after printing help, version,   
+                         and/or config information.                             
+  -I, --input string[]   The path to the file(s) to read input from.            
+  -o, --stdout           Write output to STDOUT.                                
+  -O, --output string    The name of the file to write output to.               
+  -p, --pasteboard       [Reserved] Copy output to pasteboard (clipboard).      
+  -c, --config           Print search paths and configuration values to STDOUT. 
+
+Paths:  {
+  data: '/home/cameron/.local/share/executable-metadata-nodejs',
+  config: '/home/cameron/.config/executable-metadata-nodejs',
+  cache: '/home/cameron/.cache/executable-metadata-nodejs',
+  log: '/home/cameron/.local/state/executable-metadata-nodejs',
+  temp: '/tmp/cameron/executable-metadata-nodejs'
+}

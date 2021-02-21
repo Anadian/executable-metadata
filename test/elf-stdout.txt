@@ -1,0 +1,21 @@
+{
+	"format": "ELF",
+	"architecture": {
+		"bits": 64
+	},
+	"abi": {
+		"name": "System V",
+		"value": 0,
+		"version": 0
+	},
+	"object_type": {
+		"string": "ET_DYN",
+		"value": 3
+	},
+	"isa": {
+		"name": "amd64",
+		"value": 62
+	},
+	"endianness": "little",
+	"format_version": 1
+}

@@ -936,7 +936,7 @@ async function getMetadataObjectFromExecutableFilePath_Async( filepath, options 
 	var return_error;
 	const FUNCTION_NAME = 'getMetadataObjectFromExecutableFilePath_Async';
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
-	console.log( arguments_array );
+	//console.log( arguments_array );
 	//Variables
 	var header_object = null;
 	var buffer_size = 0;
