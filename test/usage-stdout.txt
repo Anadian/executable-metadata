@@ -1,4 +1,3 @@
-0.0.0
 
 executable-metadata
 
@@ -18,10 +17,3 @@ Options
   -p, --pasteboard       [Reserved] Copy output to pasteboard (clipboard).      
   -c, --config           Print search paths and configuration values to STDOUT. 
 
-Paths:  {
-  data: '/home/cameron/.local/share/executable-metadata-nodejs',
-  config: '/home/cameron/.config/executable-metadata-nodejs',
-  cache: '/home/cameron/.cache/executable-metadata-nodejs',
-  log: '/home/cameron/.local/state/executable-metadata-nodejs',
-  temp: '/tmp/cameron/executable-metadata-nodejs'
-}

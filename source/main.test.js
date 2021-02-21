@@ -354,7 +354,7 @@ AVA( 'getMetadataObjectFromExecutableFilePath_Async:Success:PE', async function(
 AVA.cb( 'CLI:Usage', function( t ){
 	var stdout_string = '';
 	var stderr_string = '';
-	var child_process = ChildProcess.fork( './source/main.js', [ '-vVhc' ], { silent: true } );
+	var child_process = ChildProcess.fork( './source/main.js', [ '-vh' ], { silent: true } );
 	t.plan(2);
 	child_process.stdio[1].on( 'data', function( chunk ){
 		//console.log(`stdout received chunk: ${chunk}`);
