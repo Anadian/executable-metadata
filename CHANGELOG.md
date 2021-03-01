@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/Anadian/executable-metadata/compare/v0.1.0...v0.1.1) (2021-03-01)
+
+
+### Bug Fixes
+
+* Moved `concise-buffer` to regular dependencies. ([917e925](https://github.com/Anadian/executable-metadata/commit/917e925d0055f4382c7edd4c2a5bc2106ed76407))
+
 ## [0.1.0](https://github.com/Anadian/executable-metadata/compare/v0.0.2...v0.1.0) (2021-02-21)
 
 
