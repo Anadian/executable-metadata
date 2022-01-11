@@ -1170,9 +1170,12 @@ if(require.main === module){
 	} catch(error)/* istanbul ignore next */{
 		console.error('MakeDir.sync threw: %s', error);
 	}
-	function_return = ApplicationLogWinstonInterface.InitLogger('debug.log', EnvironmentPaths.log);
-	if( function_return[0] === 0 ){
-		setLogger( function_return[1] );
+	try{
+		function_return = ApplicationLogWinstonInterface.initWinstonLogger('debug.log', EnvironmentPaths.log);
+		setLogger( function_return );
+	} catch(error){
+		return_error = new Error(`ApplicationLogWinstonInterface.initWinstonLogger threw an error: ${error}`);
+		console.error(return_error);
 	}
 	Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: 'Start of execution block.'});
 	//Options
