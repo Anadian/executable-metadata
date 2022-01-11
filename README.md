@@ -6,7 +6,6 @@
 [![CI](https://github.com/Anadian/executable-metadata/workflows/ci/badge.svg)](https://github.com/Anadian/executable-metadata/actions?query=workflow%3Aci)
 [![Coverage Status](https://coveralls.io/repos/github/Anadian/executable-metadata/badge.svg?branch=main)](https://coveralls.io/github/Anadian/executable-metadata?branch=main)
 [![npm](https://img.shields.io/npm/v/executable-metadata)](https://www.npmjs.com/package/executable-metadata)
-![David](https://david-dm.org/Anadian/executable-metadata.svg)
 
 > Simply parse and print metadata from an executable binary's header from the command-line.
 # Table of Contents
