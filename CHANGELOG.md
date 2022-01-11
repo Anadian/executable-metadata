@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/Anadian/executable-metadata/compare/v0.1.1...v0.1.2) (2022-01-11)
+
+
+### Continuous Integration
+
+* Adding newer Nodes to CI. ([9cfa050](https://github.com/Anadian/executable-metadata/commit/9cfa050d32d677e0bb8c19baa4dfa42f8005c42b))
+
 ### [0.1.1](https://github.com/Anadian/executable-metadata/compare/v0.1.0...v0.1.1) (2021-03-01)
 
 
