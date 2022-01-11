@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/Anadian/executable-metadata/compare/v0.1.2...v0.1.3) (2022-01-11)
+
+
+### Documentation
+
+* Removed broken DavidDM image from the README.md ([0432205](https://github.com/Anadian/executable-metadata/commit/043220586960021643a66325c83273da6de0d11e))
+
 ### [0.1.2](https://github.com/Anadian/executable-metadata/compare/v0.1.1...v0.1.2) (2022-01-11)
 
 

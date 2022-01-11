@@ -1,6 +1,6 @@
 {
   "name": "executable-metadata",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Simply parse and print metadata from an executable binary's header from the command-line.",
   "main": "source/main.js",
   "scripts": {
