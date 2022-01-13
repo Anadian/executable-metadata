@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/Anadian/executable-metadata/compare/v0.1.3...v0.2.0) (2022-01-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Fixed the soft "crash" when no input files were specified and have comfirmed to have fixed the Windows global install issues.
+
+### Bug Fixes
+
+* Fixed the soft "crash" when no input files were specified and have comfirmed to have fixed the Windows global install issues. ([05bcb4c](https://github.com/Anadian/executable-metadata/commit/05bcb4cb18e93c096d15f87f3c2231e39b6f8825))
+
 ### [0.1.3](https://github.com/Anadian/executable-metadata/compare/v0.1.2...v0.1.3) (2022-01-11)
 
 
