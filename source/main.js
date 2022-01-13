@@ -1059,39 +1059,37 @@ async function main_Async( options = {} ){
 		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'error', message: return_error.message});
 	}*/
 	///Transform
-	if( return_error === null ){
+	if( Array.isArray(options.input) === true && options.input != null ){ 
 		//if( input_string !== '' && typeof(input_string) === 'string' ){
 		//console.log( options.input );
-		if( options.input.length > 0 ){
-			for( var i = 0; i < options.input.length; i++ ){
-				try{
-					function_return = await getMetadataObjectFromExecutableFilePath_Async( options.input[i], options );
-					if( options.input.length > 1 ){
-						metadata_objects[options.input[i]] = function_return;
-					} else{
-						metadata_objects = function_return;
-					}
-					//console.log( function_return );
-				} catch(error){
-					for_loop_error = new Error(`For ${i} (${options.input[i]}): getMetadataObjectFromExecutableFilePath threw an error: ${error}`);
-					for_loop_errors.push( for_loop_error );
+		for( var i = 0; i < options.input.length; i++ ){
+			try{
+				function_return = await getMetadataObjectFromExecutableFilePath_Async( options.input[i], options );
+				if( options.input.length > 1 ){
+					metadata_objects[options.input[i]] = function_return;
+				} else{
+					metadata_objects = function_return;
 				}
+				//console.log( function_return );
+			} catch(error){
+				for_loop_error = new Error(`For ${i} (${options.input[i]}): getMetadataObjectFromExecutableFilePath threw an error: ${error}`);
+				for_loop_errors.push( for_loop_error );
 			}
-			if( for_loop_errors.length > 0 ){
-				return_error = new Error(`Errors occurred in the for loop: ${for_loop_errors}`);
-				//throw return_error;
-			} else{
-				try{
-					output_string = JSON.stringify( metadata_objects, null, '\t' );
-				} catch(error){
-					return_error = new Error(`JSON.stringify threw an error: ${error}`);
-					//throw return_error;
-				}
-			}
-		} else{
-			return_error = new Error('No input files specified.');
-			Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'error', message: return_error.message});
 		}
+		if( for_loop_errors.length > 0 ){
+			return_error = new Error(`Errors occurred in the for loop: ${for_loop_errors}`);
+			//throw return_error;
+		} else{
+			try{
+				output_string = JSON.stringify( metadata_objects, null, '\t' );
+			} catch(error){
+				return_error = new Error(`JSON.stringify threw an error: ${error}`);
+				//throw return_error;
+			}
+		}
+	} else{
+		return_error = new Error('No input files specified.');
+		Logger.log({process: PROCESS_NAME, module: MODULE_NAME, file: FILENAME, function: FUNCTION_NAME, level: 'error', message: return_error.message});
 	}
 	///Output
 	if( return_error === null ){
